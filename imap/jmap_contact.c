@@ -1281,7 +1281,7 @@ static void _contacts_set(struct jmap_req *req, unsigned kind,
         }
 
         if (!mailbox || strcmp(mailbox_name(mailbox), mbentry->name)) {
-            jmap_closembox(req, &mailbox);
+            mailbox_close(&mailbox);
             r = jmap_openmbox(req, mbentry->name, &mailbox, 1);
         }
         mboxlist_entry_free(&mbentry);
@@ -1315,8 +1315,8 @@ done:
     if (r) jmap_error(req, jmap_server_error(r));
     jmap_parser_fini(&parser);
     jmap_set_fini(&set);
-    jmap_closembox(req, &newmailbox);
-    jmap_closembox(req, &mailbox);
+    mailbox_close(&newmailbox);
+    mailbox_close(&mailbox);
 
     carddav_close(db);
 }
@@ -4042,7 +4042,7 @@ static int _contact_set_create(jmap_req_t *req, unsigned kind, json_t *jcard,
 
     /* we need to create and append a record */
     if (!*mailbox || strcmp(mailbox_name(*mailbox), mboxname)) {
-        jmap_closembox(req, mailbox);
+        mailbox_close(mailbox);
         r = jmap_openmbox(req, mboxname, mailbox, 1);
         if (r == IMAP_MAILBOX_NONEXISTENT) {
             json_array_append_new(invalid, json_string("addressbookId"));
@@ -4199,7 +4199,7 @@ static int _contact_set_update(jmap_req_t *req, unsigned kind,
     }
 
     if (!*mailbox || strcmp(mailbox_name(*mailbox), mbentry->name)) {
-        jmap_closembox(req, mailbox);
+        mailbox_close(mailbox);
         r = jmap_openmbox(req, mbentry->name, mailbox, 1);
     }
     if (r) {
@@ -4368,7 +4368,7 @@ static int _contact_set_update(jmap_req_t *req, unsigned kind,
 
   done:
     mboxlist_entry_free(&mbentry);
-    jmap_closembox(req, &newmailbox);
+    mailbox_close(&newmailbox);
     strarray_free(flags);
     freeentryatts(annots);
     vparse_free_card(vcard);
@@ -4497,8 +4497,8 @@ done:
             *set_err = jmap_server_error(r);
     }
     mboxlist_entry_free(&mbentry);
-    jmap_closembox(req, &dst_mbox);
-    jmap_closembox(req, &src_mbox);
+    mailbox_close(&dst_mbox);
+    mailbox_close(&src_mbox);
     json_decref(dst_card);
     jmap_parser_fini(&myparser);
 }
@@ -5131,7 +5131,7 @@ static int setaddressbook_writeprops(jmap_req_t *req,
     buf_free(&val);
     if (mbox) {
         if (r) mailbox_abort(mbox);
-        jmap_closembox(req, &mbox);
+        mailbox_close(&mbox);
     }
     return r;
 }
@@ -11106,7 +11106,7 @@ static int _card_set_create(jmap_req_t *req,
 
     /* we need to create and append a record */
     if (!*mailbox || strcmp(mailbox_name(*mailbox), mboxname)) {
-        jmap_closembox(req, mailbox);
+        mailbox_close(mailbox);
         r = jmap_openmbox(req, mboxname, mailbox, 1);
         if (r == IMAP_MAILBOX_NONEXISTENT) {
             json_array_append_new(invalid, json_string("addressbookId"));
@@ -11286,7 +11286,7 @@ static int _card_set_update(jmap_req_t *req, unsigned kind,
     }
 
     if (!*mailbox || strcmp(mailbox_name(*mailbox), mbentry->name)) {
-        jmap_closembox(req, mailbox);
+        mailbox_close(mailbox);
         r = jmap_openmbox(req, mbentry->name, mailbox, 1);
     }
     if (r) {
@@ -11454,7 +11454,7 @@ static int _card_set_update(jmap_req_t *req, unsigned kind,
 
   done:
     mboxlist_entry_free(&mbentry);
-    jmap_closembox(req, &newmailbox);
+    mailbox_close(&newmailbox);
     freeentryatts(annots);
     vcardcomponent_free(vcard);
     free(resource);
@@ -11659,7 +11659,7 @@ static int jmap_card_parse(jmap_req_t *req)
             json_array_append_new(parse.not_parsable, json_string(blobid));
         }
 
-        if (mailbox) jmap_closembox(req, &mailbox);
+        mailbox_close(&mailbox);
     }
 
     jmap_getblob_ctx_fini(&blob_ctx);
@@ -11820,7 +11820,7 @@ done:
         ctx->errstr = desc;
     }
     if (vcard) vcardcomponent_free(vcard);
-    if (mailbox) jmap_closembox(req, &mailbox);
+    mailbox_close(&mailbox);
     mboxlist_entry_free(&freeme);
     free(mboxid);
     free(propname);
@@ -11952,7 +11952,7 @@ done:
         ctx->errstr = desc;
     }
     if (vcard) vparse_free_card(vcard);
-    if (mailbox) jmap_closembox(req, &mailbox);
+    mailbox_close(&mailbox);
     mboxlist_entry_free(&freeme);
     free(mboxid);
     free(prop);
