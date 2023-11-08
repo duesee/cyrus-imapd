@@ -13226,9 +13226,6 @@ static void _email_import(jmap_req_t *req,
     int has_attachment = 0;
     const char *sourcefile = NULL;
 
-    /* Force write locks on mailboxes. */
-    req->force_openmbox_rw = 1;
-
     /* Gather keywords */
     strarray_t keywords = STRARRAY_INITIALIZER;
     const json_t *val;
@@ -13360,6 +13357,9 @@ gotrecord:
     }
     if (!internaldate)
         internaldate = time(NULL);
+
+    // mailbox will be readonly, drop the lock so it can be make writable
+    if (mbox) mailbox_unlock_index(mbox, NULL);
 
     /* Write the message to the file system */
     _email_append(req, jmailbox_ids, &keywords, internaldate, snoozed,
