@@ -4835,7 +4835,7 @@ static int jmap_addressbook_get(struct jmap_req *req)
                 }
             }
 
-            if (mbentry) mboxlist_entry_free(&mbentry);
+            mboxlist_entry_free(&mbentry);
             free(mboxname);
             if (r) goto done;
         }
