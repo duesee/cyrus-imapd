@@ -8623,7 +8623,6 @@ submboxes:
 
     /* take care of deleting old quotas */
     if (!r && rename_user) {
-        user_sharee_renameacls(&imapd_namespace, olduser, newuser);
         user_deletequotaroots(olduser);
         sync_log_unuser(olduser);
     }
@@ -8666,6 +8665,9 @@ respond:
 done:
     mboxname_release(&oldnamespacelock);
     mboxname_release(&newnamespacelock);
+    // rename acls after the lock is dropped
+    if (!r && rename_user)
+        user_sharee_renameacls(&imapd_namespace, olduser, newuser);
     mboxlist_entry_free(&mbentry);
     if (oldname != orig_oldname) free(oldname);
     if (newname != orig_newname) free(newname);
