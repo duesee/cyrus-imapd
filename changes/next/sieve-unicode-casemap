@@ -1,0 +1,14 @@
+
+Description:
+
+Adds support for comparator-i;unicode-casemap (RFC 9394) to Sieve
+
+
+Config changes:
+
+None
+
+
+Upgrade instructions:
+
+None
